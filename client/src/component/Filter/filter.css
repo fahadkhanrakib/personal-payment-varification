@@ -1,0 +1,26 @@
+.main_filter {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px 10px;
+  align-items: center;
+}
+.filter_text {
+  color: #36454F;
+}
+.bkash {
+  padding: 10px 20px;
+  background-color: #e1136e;
+  color: #fff;
+  border-radius: 10px;
+  font-weight: bold;
+  border: 1px solid #ff007f;
+}
+.nagad {
+  padding: 10px 20px;
+  background-color: #f05621;
+  color: #fff;
+  border-radius: 10px;
+  font-weight: bold;
+  border: 1px solid #ea2324;
+  margin-left: 10px;
+}
