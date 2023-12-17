@@ -1,21 +1,11 @@
-const TransactionModel = require('../../../models/Transaction');
-const StringCodeModel = require('../../../models/StringCode');
-const UserModel = require('../../../models/User');
-const { format12HourTime } = require('../../../utilities/utilities');
+const TransactionModel = require('../../../../models/Transaction');
+const StringCodeModel = require('../../../../models/StringCode');
+const UserModel = require('../../../../models/User');
+const { format12HourTime, extractInfo } = require('../../../../utilities/utilities');
 
 module.exports = async (req, res) => {
   const wallet = req.body.sender;
   const message = req.body.message;
-
-  const extractInfo = (keyword, indexOfVal, plusIndex, minusIndex, returnVal) => {
-    if (message.indexOf(keyword) === -1) {
-      return returnVal;
-    } else {
-      const startIndex = message.indexOf(keyword) + keyword.length + plusIndex;
-      const endIndex = message.indexOf(indexOfVal, startIndex);
-      return message.substring(startIndex, endIndex - minusIndex);
-    }
-  };
 
   const moneyReceivedRegex = message.match(/You have received Tk/);
   const cashInRegex = message.match(/Cash In/);
@@ -34,24 +24,24 @@ module.exports = async (req, res) => {
     const operationType = moneyReceivedRegex ? 'Money Received' : 'Cash In';
 
     if (operationType === 'Money Received') {
-      amount = extractInfo('received Tk', ' ', 1, 0, 0.0);
-      sender = extractInfo('from', ' ', 1, 1, '');
-      reference = extractInfo('Ref', ' ', 1, 1, '');
-      fee = extractInfo('Fee Tk', ' ', 1, 1, 0.0);
-      mainBalance = extractInfo('Balance Tk', ' ', 1, 1, 0.0);
-      transactionID = extractInfo('TrxID', ' ', 1, 0, '');
-      transactionDate = extractInfo('at', ' ', 1, 0, '');
-      rawTransactionTime = extractInfo(transactionDate, ':', 1, -3, '');
+      amount = extractInfo(message, 'received Tk', ' ', 1, 0, 0.0);
+      sender = extractInfo(message, 'from', ' ', 1, 1, '');
+      reference = extractInfo(message, 'Ref', ' ', 1, 1, '');
+      fee = extractInfo(message, 'Fee Tk', ' ', 1, 1, 0.0);
+      mainBalance = extractInfo(message, 'Balance Tk', ' ', 1, 1, 0.0);
+      transactionID = extractInfo(message, 'TrxID', ' ', 1, 0, '');
+      transactionDate = extractInfo(message, 'at', ' ', 1, 0, '');
+      rawTransactionTime = extractInfo(message, transactionDate, ':', 1, -3, '');
       transactionTime = format12HourTime(rawTransactionTime);
     } else if (operationType === 'Cash In') {
-      amount = extractInfo('Cash In Tk', ' ', 1, 0, 0.0);
-      sender = extractInfo('from', ' ', 1, 0, '');
-      reference = extractInfo('Ref', ' ', 1, 1, '');
-      fee = extractInfo('Fee Tk', ' ', 1, 1, 0.0);
-      mainBalance = extractInfo('Balance Tk', ' ', 1, 1, 0.0);
-      transactionID = extractInfo('TrxID', ' ', 1, 0, '');
-      transactionDate = extractInfo('at', ' ', 1, 0, '');
-      rawTransactionTime = extractInfo(transactionDate, ':', 1, -3);
+      amount = extractInfo(message, 'Cash In Tk', ' ', 1, 0, 0.0);
+      sender = extractInfo(message, 'from', ' ', 1, 0, '');
+      reference = extractInfo(message, 'Ref', ' ', 1, 1, '');
+      fee = extractInfo(message, 'Fee Tk', ' ', 1, 1, 0.0);
+      mainBalance = extractInfo(message, 'Balance Tk', ' ', 1, 1, 0.0);
+      transactionID = extractInfo(message, 'TrxID', ' ', 1, 0, '');
+      transactionDate = extractInfo(message, 'at', ' ', 1, 0, '');
+      rawTransactionTime = extractInfo(message, transactionDate, ':', 1, -3);
       transactionTime = format12HourTime(rawTransactionTime);
     }
 
@@ -107,7 +97,7 @@ module.exports = async (req, res) => {
               _id: findOwner.userId._id,
             },
             {
-              $inc: {accountBalance: amount}
+              $inc: { accountBalance: amount },
             },
           );
         } else {

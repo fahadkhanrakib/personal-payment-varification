@@ -49,12 +49,12 @@ const TransactionSchema = new mongoose.Schema({
     enum: ['pending', 'verified', 'failed'],
     default: 'pending',
   },
-  senderUser: [
+  senderUser: 
     { 
       type: mongoose.Types.ObjectId,
       ref: 'User' 
     }
-    ],
+    
 });
 
 const Transaction = mongoose.model('Transaction', TransactionSchema);
